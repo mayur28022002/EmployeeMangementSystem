@@ -1,0 +1,82 @@
+package employeemangement;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class RemoveEmployee extends JFrame implements ActionListener {
+
+    Choice cemployeeId;
+    JButton delete, back;
+
+    RemoveEmployee() {
+        getContentPane().setBackground(Color.WHITE);
+        setLayout(null);
+
+        JLabel lbl = new JLabel("Select Employee ID to Remove");
+        lbl.setBounds(50, 50, 200, 20);
+        add(lbl);
+
+        cemployeeId = new Choice();
+        cemployeeId.setBounds(250, 50, 150, 20);
+        add(cemployeeId);
+
+        // Load employee IDs
+        try {
+            Conn c = new Conn();
+            ResultSet rs = c.s.executeQuery("SELECT empId FROM employee");
+            while (rs.next()) {
+                cemployeeId.add(rs.getString("empId"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        delete = new JButton("Delete");
+        delete.setBounds(50, 100, 150, 30);
+        delete.addActionListener(this);
+        delete.setBackground(Color.RED);
+        delete.setForeground(Color.WHITE);
+        add(delete);
+
+        back = new JButton("Back");
+        back.setBounds(250, 100, 150, 30);
+        back.addActionListener(this);
+        back.setBackground(Color.BLACK);
+        back.setForeground(Color.WHITE);
+        add(back);
+
+        setSize(500, 300);
+        setLocation(400, 200);
+        setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == delete) {
+            try {
+                Conn c = new Conn();
+                String empId = cemployeeId.getSelectedItem();
+                int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete employee " + empId + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    c.s.executeUpdate("DELETE FROM employee WHERE empId = '" + empId + "'");
+                    JOptionPane.showMessageDialog(null, "Employee deleted successfully!");
+                    setVisible(false);
+                    new Home();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (ae.getSource() == back) {
+            setVisible(false);
+            new Home();
+        }
+    }
+
+    public static void main(String[] args) {
+        new RemoveEmployee();
+    }
+}
