@@ -1,0 +1,30 @@
+package employeemangement;
+
+import java.sql.*;
+
+public class Conn {
+
+    public Connection c;
+    public Statement s;
+
+    public Conn() {
+        try {
+           
+            Class.forName("org.postgresql.Driver");
+
+            
+            // Change database name, username, and password as per your setup
+            c = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5432/employeemanagementsystem",
+                    "postgres",
+                    "Mayur123" // replace with your PostgreSQL password
+            );
+
+          
+            s = c.createStatement();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
