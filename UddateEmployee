@@ -1,0 +1,201 @@
+package employeemangement;
+
+import javax.swing.*;
+import com.toedter.calendar.JDateChooser;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class UpdateEmployee extends JFrame implements ActionListener {
+
+    JTextField tfname, tffname, tfaddress, tfphone, tfaadhar, tfemail, tfsalary, tfdesignation;
+    JDateChooser dcdob;
+    JComboBox cbeducation;
+    JLabel lblempId;
+    JButton update, back;
+
+    String empId;
+
+    UpdateEmployee(String empId) {
+        this.empId = empId;
+
+        getContentPane().setBackground(Color.WHITE);
+        setLayout(null);
+
+        JLabel heading = new JLabel("Update Employee Detail");
+        heading.setBounds(320, 30, 500, 50);
+        heading.setFont(new Font("SAN_SERIF", Font.BOLD, 25));
+        add(heading);
+
+        // Employee ID
+        JLabel labelempId = new JLabel("Employee Id");
+        labelempId.setBounds(50, 100, 150, 30);
+        add(labelempId);
+
+        this.lblempId = new JLabel(empId);
+        this.lblempId.setBounds(200, 100, 150, 30);
+        add(this.lblempId);
+
+        // Name
+        JLabel labelname = new JLabel("Name");
+        labelname.setBounds(50, 150, 150, 30);
+        add(labelname);
+        tfname = new JTextField();
+        tfname.setBounds(200, 150, 150, 30);
+        add(tfname);
+
+        // Father's Name
+        JLabel labelfname = new JLabel("Father's Name");
+        labelfname.setBounds(400, 150, 150, 30);
+        add(labelfname);
+        tffname = new JTextField();
+        tffname.setBounds(600, 150, 150, 30);
+        add(tffname);
+
+        // DOB
+        JLabel labeldob = new JLabel("Date of Birth");
+        labeldob.setBounds(50, 200, 150, 30);
+        add(labeldob);
+        dcdob = new JDateChooser();
+        dcdob.setBounds(200, 200, 150, 30);
+        add(dcdob);
+
+        // Salary
+        JLabel labelsalary = new JLabel("Salary");
+        labelsalary.setBounds(400, 200, 150, 30);
+        add(labelsalary);
+        tfsalary = new JTextField();
+        tfsalary.setBounds(600, 200, 150, 30);
+        add(tfsalary);
+
+        // Address
+        JLabel labeladdress = new JLabel("Address");
+        labeladdress.setBounds(50, 250, 150, 30);
+        add(labeladdress);
+        tfaddress = new JTextField();
+        tfaddress.setBounds(200, 250, 150, 30);
+        add(tfaddress);
+
+        // Phone
+        JLabel labelphone = new JLabel("Phone");
+        labelphone.setBounds(400, 250, 150, 30);
+        add(labelphone);
+        tfphone = new JTextField();
+        tfphone.setBounds(600, 250, 150, 30);
+        add(tfphone);
+
+        // Email
+        JLabel labelemail = new JLabel("Email");
+        labelemail.setBounds(50, 300, 150, 30);
+        add(labelemail);
+        tfemail = new JTextField();
+        tfemail.setBounds(200, 300, 150, 30);
+        add(tfemail);
+
+        // Education
+        JLabel labeleducation = new JLabel("Highest Education");
+        labeleducation.setBounds(400, 300, 150, 30);
+        add(labeleducation);
+        String courses[] = {"BBA", "BCA", "BA", "BSC", "B.COM", "BTech", "MBA", "MCA", "MA", "MTech", "MSC", "PHD"};
+        cbeducation = new JComboBox(courses);
+        cbeducation.setBounds(600, 300, 150, 30);
+        add(cbeducation);
+
+        // Designation
+        JLabel labeldesignation = new JLabel("Designation");
+        labeldesignation.setBounds(50, 350, 150, 30);
+        add(labeldesignation);
+        tfdesignation = new JTextField();
+        tfdesignation.setBounds(200, 350, 150, 30);
+        add(tfdesignation);
+
+        // Aadhar
+        JLabel labelaadhar = new JLabel("Aadhar Number");
+        labelaadhar.setBounds(400, 350, 150, 30);
+        add(labelaadhar);
+        tfaadhar = new JTextField();
+        tfaadhar.setBounds(600, 350, 150, 30);
+        add(tfaadhar);
+
+        // Buttons
+        update = new JButton("Update");
+        update.setBounds(250, 550, 150, 40);
+        update.addActionListener(this);
+        update.setBackground(Color.BLACK);
+        update.setForeground(Color.WHITE);
+        add(update);
+
+        back = new JButton("Back");
+        back.setBounds(450, 550, 150, 40);
+        back.addActionListener(this);
+        back.setBackground(Color.BLACK);
+        back.setForeground(Color.WHITE);
+        add(back);
+
+        loadEmployeeDetails(); // Load existing data
+
+        setSize(900, 700);
+        setLocation(300, 50);
+        setVisible(true);
+    }
+
+    // Load existing employee details from DB
+    private void loadEmployeeDetails() {
+        try {
+            Conn c = new Conn();
+            ResultSet rs = c.s.executeQuery("SELECT * FROM employee WHERE empId = '" + empId + "'");
+            if (rs.next()) {
+                tfname.setText(rs.getString("name"));
+                tffname.setText(rs.getString("fname"));
+                ((JTextField)dcdob.getDateEditor().getUiComponent()).setText(rs.getString("dob"));
+                tfsalary.setText(rs.getString("salary"));
+                tfaddress.setText(rs.getString("address"));
+                tfphone.setText(rs.getString("phone"));
+                tfemail.setText(rs.getString("email"));
+                cbeducation.setSelectedItem(rs.getString("education"));
+                tfdesignation.setText(rs.getString("designation"));
+                tfaadhar.setText(rs.getString("aadhar"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == update) {
+            try {
+                Conn c = new Conn();
+                String query = "UPDATE employee SET name = ?, fname = ?, dob = ?, salary = ?, address = ?, phone = ?, email = ?, education = ?, designation = ?, aadhar = ? WHERE empId = ?";
+                PreparedStatement pst = c.c.prepareStatement(query);
+                pst.setString(1, tfname.getText());
+                pst.setString(2, tffname.getText());
+                pst.setString(3, ((JTextField)dcdob.getDateEditor().getUiComponent()).getText());
+                pst.setString(4, tfsalary.getText());
+                pst.setString(5, tfaddress.getText());
+                pst.setString(6, tfphone.getText());
+                pst.setString(7, tfemail.getText());
+                pst.setString(8, (String)cbeducation.getSelectedItem());
+                pst.setString(9, tfdesignation.getText());
+                pst.setString(10, tfaadhar.getText());
+                pst.setString(11, empId);
+
+                pst.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Employee details updated successfully!");
+                setVisible(false);
+                new Home();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else if (ae.getSource() == back) {
+            setVisible(false);
+            new Home();
+        }
+    }
+
+    public static void main(String[] args) {
+        new UpdateEmployee("1"); // example empId
+    }
+}
